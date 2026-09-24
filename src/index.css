@@ -1,0 +1,45 @@
+@import "tailwindcss";
+@import "katex/dist/katex.min.css";
+
+@layer base {
+  html, body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+
+/* Enhanced styling for KaTeX mathematical formulas */
+.katex-display {
+  margin: 0.85rem 0 !important;
+  font-size: 1.35em !important;
+  line-height: 1.6 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.6rem 0.25rem;
+}
+
+.katex {
+  font-size: 1.15em;
+  text-rendering: auto;
+}
+
+.inline-math .katex {
+  font-size: 1.05em;
+}
+
+/* Custom scrollbars for tablet & desktop */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.45);
+}

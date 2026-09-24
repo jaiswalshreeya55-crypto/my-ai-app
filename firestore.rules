@@ -1,0 +1,87 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Catch-All Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Test connection doc for client health-checks
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // 2. User Profiles: /users/{userId}
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && isValidId(userId)
+        && incoming().keys().hasAll(['uid', 'createdAt'])
+        && incoming().keys().hasOnly(['uid', 'email', 'displayName', 'photoURL', 'createdAt', 'updatedAt'])
+        && incoming().uid == request.auth.uid;
+      allow update: if isOwner(userId) && isValidId(userId)
+        && incoming().uid == request.auth.uid;
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      // 3. User Creations: /users/{userId}/creations/{creationId}
+      match /creations/{creationId} {
+        allow get: if isOwner(userId) && isValidId(creationId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(creationId)
+          && incoming().keys().hasAll(['id', 'userId', 'type', 'title', 'createdAt'])
+          && incoming().userId == request.auth.uid
+          && incoming().id == creationId;
+        allow update: if isOwner(userId) && isValidId(creationId)
+          && incoming().userId == request.auth.uid;
+        allow delete: if isOwner(userId) && isValidId(creationId);
+      }
+
+      // 4. User Chat Threads: /users/{userId}/chats/{chatId}
+      match /chats/{chatId} {
+        allow get: if isOwner(userId) && isValidId(chatId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(chatId)
+          && incoming().keys().hasAll(['id', 'userId', 'title', 'model', 'createdAt'])
+          && incoming().userId == request.auth.uid
+          && incoming().id == chatId;
+        allow update: if isOwner(userId) && isValidId(chatId)
+          && incoming().userId == request.auth.uid;
+        allow delete: if isOwner(userId) && isValidId(chatId);
+
+        // 5. Messages inside Chat Thread: /users/{userId}/chats/{chatId}/messages/{messageId}
+        match /messages/{messageId} {
+          allow get: if isOwner(userId) && isValidId(messageId);
+          allow list: if isOwner(userId);
+          allow create: if isOwner(userId) && isValidId(messageId)
+            && incoming().keys().hasAll(['id', 'userId', 'role', 'content', 'createdAt'])
+            && incoming().userId == request.auth.uid
+            && incoming().id == messageId;
+          allow update: if isOwner(userId) && isValidId(messageId)
+            && incoming().userId == request.auth.uid;
+          allow delete: if isOwner(userId) && isValidId(messageId);
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "entities": {
+    "userProfile": {
+      "title": "User Profile",
+      "description": "Public and private profile of an authenticated user",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The Firebase Auth user ID" },
+        "email": { "type": "string", "description": "The user email address" },
+        "displayName": { "type": "string", "description": "The user display name" },
+        "photoURL": { "type": "string", "description": "The user avatar URL" },
+        "createdAt": { "type": "string", "description": "ISO timestamp of creation" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of update" }
+      },
+      "required": ["uid", "createdAt"]
+    },
+    "userCreation": {
+      "title": "User Creation",
+      "description": "Saved generation assets such as images, videos, music clips, and math solutions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier of the creation" },
+        "userId": { "type": "string", "description": "Owner user ID" },
+        "type": { "type": "string", "description": "Creation type: image, video, music, maps, or math" },
+        "title": { "type": "string", "description": "Short title or prompt summary" },
+        "prompt": { "type": "string", "description": "Input prompt or query" },
+        "outputUrl": { "type": "string", "description": "Asset URL or data URI" },
+        "metadata": { "type": "string", "description": "Additional stringified parameters" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "userId", "type", "title", "createdAt"]
+    },
+    "chatThread": {
+      "title": "Chat Thread",
+      "description": "Multi-turn Gemini chat conversation thread",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique chat thread ID" },
+        "userId": { "type": "string", "description": "Owner user ID" },
+        "title": { "type": "string", "description": "Chat thread title" },
+        "model": { "type": "string", "description": "Gemini model used" },
+        "role": { "type": "string", "description": "System role description" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "description": "Last message timestamp" }
+      },
+      "required": ["id", "userId", "title", "model", "createdAt"]
+    },
+    "chatMessage": {
+      "title": "Chat Message",
+      "description": "Individual message inside a chat thread",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Message ID" },
+        "userId": { "type": "string", "description": "Owner user ID" },
+        "role": { "type": "string", "description": "Role: user or model or system" },
+        "content": { "type": "string", "description": "Message text or markdown" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      },
+      "required": ["id", "userId", "role", "content", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "userProfile",
+      "description": "User profile document owned strictly by {userId}"
+    },
+    "/users/{userId}/creations/{creationId}": {
+      "schema": "userCreation",
+      "description": "User creations subcollection owned strictly by {userId}"
+    },
+    "/users/{userId}/chats/{chatId}": {
+      "schema": "chatThread",
+      "description": "Chat threads owned strictly by {userId}"
+    },
+    "/users/{userId}/chats/{chatId}/messages/{messageId}": {
+      "schema": "chatMessage",
+      "description": "Chat messages inside a thread owned strictly by {userId}"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "AI Studio",
+  "description": "Modern Android-optimized AI Studio app with real-time web search grounding, vision QA, and live background personalization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
